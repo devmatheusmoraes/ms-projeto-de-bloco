@@ -72,7 +72,7 @@ public class ReservaController {
         }
     }
 
-    @Operation(summary = "Listar excluir uma reserva por ID")
+    @Operation(summary = "Listar atualizar uma reserva por ID")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AtualizarReserva dto) {
         try {
