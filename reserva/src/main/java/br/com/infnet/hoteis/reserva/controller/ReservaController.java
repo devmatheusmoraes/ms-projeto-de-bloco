@@ -1,6 +1,7 @@
 package br.com.infnet.hoteis.reserva.controller;
 
 import br.com.infnet.hoteis.reserva.config.ApplicationCache;
+import br.com.infnet.hoteis.reserva.dto.AtualizarReserva;
 import br.com.infnet.hoteis.reserva.dto.ConfirmacaoReserva;
 import br.com.infnet.hoteis.reserva.dto.ReservaDto;
 import br.com.infnet.hoteis.reserva.model.Hotel;
@@ -52,6 +53,47 @@ public class ReservaController {
             return ResponseEntity.ok(byId.get());
         }else{
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Listar excluir uma reserva por ID")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable Long id) {
+        try {
+            Reserva reserva = reservaService.findById(id).orElseThrow(() -> {
+                String erroMsg = "Reserva não encontrada para o ID: " + id.toString();
+                log.error(erroMsg);
+                return new ResponseStatusException(HttpStatus.BAD_REQUEST, erroMsg);
+            });
+            reservaService.deleteById(id);
+            return ResponseEntity.ok().body("Reserva excluída com sucesso");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao excluir reserva");
+        }
+    }
+
+    @Operation(summary = "Listar excluir uma reserva por ID")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AtualizarReserva dto) {
+        try {
+            Reserva reserva = reservaService.findById(id).orElseThrow(() -> {
+                String erroMsg = "Reserva não encontrada para o ID: " + id.toString();
+                log.error(erroMsg);
+                return new ResponseStatusException(HttpStatus.BAD_REQUEST, erroMsg);
+            });
+            Hotel hotel = disponibilidadeService.validar(dto.idHotel()).orElseThrow(() -> {
+                String erro = "Hotel não encontrado, id: " + dto.idHotel().toString();
+                log.error(erro);
+                return new ResponseStatusException(HttpStatus.BAD_REQUEST, erro);
+            });
+            hotelService.save(hotel);
+            reserva.setHotel(hotel);
+            reserva.atualizar(dto);
+            reservaService.atualizar(reserva);
+            notificacaoService.notificar(reserva);
+            return ResponseEntity.ok().body("Reserva atualizada com sucesso");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar reserva");
         }
     }
 

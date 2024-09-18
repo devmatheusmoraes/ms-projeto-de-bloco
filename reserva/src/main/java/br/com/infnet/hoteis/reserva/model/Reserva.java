@@ -1,6 +1,8 @@
 package br.com.infnet.hoteis.reserva.model;
 
+import br.com.infnet.hoteis.reserva.dto.AtualizarReserva;
 import br.com.infnet.hoteis.reserva.dto.ReservaDto;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -49,6 +52,15 @@ public class Reserva {
         this.numeroComodos = dto.numeroComodos();
         this.hotel = hotel;
         this.usuario = usuario;
+    }
+
+    public void atualizar(AtualizarReserva dto){
+        this.dataInicio = dto.reservaDto().dataInicio();
+        this.dataFim = dto.reservaDto().dataFim();
+        this.numeroAdultos = dto.reservaDto().numeroAdultos();
+        this.numeroCriancas = dto.reservaDto().numeroCriancas();
+        this.numeroComodos = dto.reservaDto().numeroComodos();
+        this.valor = Objects.nonNull(this.hotel) ? ReservaCalculator.calcularValorReserva(this.hotel) : BigDecimal.ZERO;
     }
 
 }
