@@ -1,6 +1,7 @@
 spring:
   application:
     name: gateway
+    active: dev
   cloud:
     gateway:
       routes:
